@@ -1,0 +1,34 @@
+spring:
+  ai:
+    # Ollama Configuration
+    ollama:
+      base-url: http://localhost:11434
+      model: llama3.2
+      chat:
+        options:
+          model: llama3.2
+          temperature: 0.0
+          top-k: 1
+          top-p: 1.0
+          num-predict: 2048
+  application:
+    name: math-mcp-service
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: never
+
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    com.example.mathmcp: DEBUG
+    org.springframework.ai: INFO
+    org.springframework.web: INFO
+

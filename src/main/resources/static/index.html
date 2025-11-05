@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Spring AI Calculator with MCP - A demo application using Spring AI and Ollama for arithmetic operations with AI-generated explanations">
+    <meta name="keywords" content="Spring AI, Ollama, Calculator, MCP, REST API">
+    <meta name="author" content="Spring AI Calculator Demo">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <title>Spring AI Calculator</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --background-color: #f8f9fa;
+            --endpoint-background: white;
+            --code-background: #f4f4f4;
+            --text-color: #333;
+            --transition-duration: 0.2s;
+            --focus-ring-color: #3498db40;
+        }
+        
+        * {
+            transition: background-color var(--transition-duration) ease,
+                        color var(--transition-duration) ease,
+                        border-color var(--transition-duration) ease,
+                        box-shadow var(--transition-duration) ease,
+                        transform var(--transition-duration) ease,
+                        opacity var(--transition-duration) ease;
+        }
+
+        *:focus-visible {
+            outline: 3px solid var(--focus-ring-color);
+            outline-offset: 2px;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --primary-color: #60a5fa;
+                --secondary-color: #93c5fd;
+                --background-color: #1a1a1a;
+                --endpoint-background: #2d2d2d;
+                --code-background: #1e1e1e;  /* darker for better contrast */
+                --text-color: #e5e5e5;
+                --border-color: #404040;
+            }
+
+            body {
+                background-color: var(--background-color);
+                color: var(--text-color);
+            }
+
+            .endpoint {
+                background-color: var(--endpoint-background);
+                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            }
+
+            .endpoint:hover {
+                box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            }
+
+            .example {
+                background-color: var(--endpoint-background);
+                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            }
+
+            pre {
+                border-color: var(--border-color);
+                background-color: var(--code-background);
+            }
+            
+            code:not(pre code) {
+                color: var(--secondary-color);
+                background-color: rgba(0, 0, 0, 0.2);
+            }
+            
+            .example h2 {
+                color: var(--secondary-color);
+            }
+            
+            a {
+                color: var(--secondary-color);
+            }
+            
+            a:hover {
+                color: var(--primary-color);
+            }
+            
+            .skip-link:focus {
+                background: var(--primary-color);
+                color: var(--text-color);
+            }
+        }
+
+        /* Layout */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: var(--text-color);
+            background-color: var(--background-color);
+        }
+
+        /* Typography */
+        h1, h2, h3, h4 {
+            color: var(--primary-color);
+            margin-top: 1.5em;
+            margin-bottom: 0.75em;
+        }
+
+        h1 {
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 0.5em;
+        }
+
+        .endpoint {
+            background-color: var(--endpoint-background);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease-in-out;
+        }
+
+        /* Interactive elements */
+        .endpoint:hover,
+        .example:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        code:not(pre code),
+        .skip-link,
+        .endpoint h3,
+        .endpoint h4 {
+            transition: all var(--transition-duration) ease;
+        }
+
+        pre {
+            background-color: var(--code-background);
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            border: 1px solid #ddd;
+        }
+
+        code {
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 0.9em;
+        }
+
+        .example {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: var(--endpoint-background);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+        
+        section {
+            margin-bottom: 3em;
+        }
+
+        section:last-of-type {
+            margin-bottom: 2em;
+        }
+        /* Typography and text styles */
+        code:not(pre code) {
+            background-color: var(--code-background);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--primary-color);
+        }
+
+        .endpoint h3,
+        .endpoint h4 {
+            color: var(--secondary-color);
+        }
+        
+        .endpoint h3:hover,
+        .endpoint h4:hover {
+            color: var(--primary-color);
+        }
+
+        code:not(pre code):hover {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        li code:hover {
+            background-color: var(--secondary-color);
+            color: white;
+            cursor: pointer;
+        }
+        p {
+            margin: 1em 0;
+        }
+        
+        .skip-link {
+            position: absolute;
+            left: -9999px;
+            clip: rect(0, 0, 0, 0);
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            z-index: 999;
+        }
+        
+        .skip-link:focus {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--secondary-color);
+            color: white;
+            padding: 0.5em 1em;
+            margin: 0;
+            border-radius: 0 0 4px 4px;
+            text-decoration: none;
+            width: auto;
+            height: auto;
+            clip: auto;
+            clip-path: none;
+            z-index: 1000;
+        }
+        
+        footer {
+            padding-top: 20px;
+            border-top: 1px solid var(--secondary-color);
+            text-align: center;
+            opacity: 0.8;
+        }
+
+        footer p {
+            margin: 0.5em 0;
+        }
+        
+        @media print {
+            body {
+                max-width: none;
+                padding: 20px;
+            }
+
+            .endpoint {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                break-inside: avoid;
+            }
+
+            .example {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+
+            pre {
+                white-space: pre-wrap;
+            }
+
+            footer {
+                position: fixed;
+                bottom: 0;
+                width: 100%;
+            }
+            
+            code:not(pre code) {
+                border: 1px solid #ddd;
+                padding: 2px 4px;
+            }
+            
+            li {
+                page-break-inside: avoid;
+            }
+            
+            section {
+                page-break-inside: avoid;
+                margin-bottom: 2em;
+            }
+        }
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <main role="main" id="main-content">
+        <h1 role="heading" aria-level="1">Spring AI Calculator with MCP</h1>
+        <p>A Spring Boot application that demonstrates using Spring AI with Ollama to perform
+           basic arithmetic operations and provide AI-generated explanations.</p>
+        <section role="region" aria-label="API Endpoints">
+            <h2>API Endpoints</h2>
+            
+            <div class="endpoint">
+                <h3>Main Calculation Endpoint</h3>
+                <code>POST /calculator/calculate</code>
+                <p>Performs a calculation based on the provided operation and operands.</p>
+                
+                <h4>Request Example:</h4>
+                <pre><code>{
+  "operation": "add",
+  "firstOperand": 5,
+  "secondOperand": 3
+}</code></pre>
+                
+                <h4>Response Example:</h4>
+                <pre><code>{
+  "operation": "add",
+  "firstOperand": 5,
+  "secondOperand": 3,
+  "result": 8,
+  "explanation": "To add 5 and 3, you combine the values. 5 + 3 = 8."
+}</code></pre>
+            </div>
+    
+            <h3>Convenience Endpoints</h3>
+            <ul>
+                <li><code>GET /calculator/add?a=5&b=3</code></li>
+                <li><code>GET /calculator/subtract?a=5&b=3</code></li>
+                <li><code>GET /calculator/multiply?a=5&b=3</code></li>
+                <li><code>GET /calculator/divide?a=6&b=2</code></li>
+            </ul>
+            
+            <div class="endpoint">
+                <h4>Convenience Endpoint Response Example:</h4>
+                <pre><code>{
+  "operation": "multiply",
+  "firstOperand": 4,
+  "secondOperand": 5,
+  "result": 20,
+  "explanation": "To multiply 4 and 5, we add 4 five times. 4 × 5 = 20."
+}</code></pre>
+            </div>
+    
+            <h3>Health Check</h3>
+            <p><code>GET /health</code> - Returns application and Ollama service status</p>
+            
+            <div class="endpoint">
+                <h4>Health Check Response Example:</h4>
+                <pre><code>{
+  "status": "UP",
+  "service": "Spring AI Calculator",
+  "ollama": {
+    "status": "UP",
+    "model": "llama2"
+  }
+}</code></pre>
+            </div>
+    
+            <div class="endpoint">
+                <h3>Error Responses</h3>
+                <p>The API provides detailed error responses for various scenarios:</p>
+                
+                <h4>Validation Error Example:</h4>
+                <pre><code>{
+  "error": "Validation Failed",
+  "details": {
+    "operation": "Invalid operation. Supported operations: add, subtract, multiply, divide"
+  }
+}</code></pre>
+                
+                <h4>Division by Zero Example:</h4>
+                <pre><code>{
+  "error": "Calculation Error",
+  "message": "Division by zero is not allowed"
+}</code></pre>
+                
+                <h4>Ollama Service Unavailable Example:</h4>
+                <pre><code>{
+  "error": "AI Service Unavailable",
+  "message": "Unable to connect to Ollama service. Please ensure it's running."
+}</code></pre>
+            </div>
+    </section>
+    
+    <section role="region" aria-label="Testing Instructions">
+        <div class="example">
+            <h2>Testing the API</h2>
+            <p>You can test the API using curl:</p>
+            <pre><code># Test health endpoint
+curl http://localhost:8080/health
+
+# Test calculation endpoint
+curl -X POST http://localhost:8080/calculator/calculate \
+  -H "Content-Type: application/json" \
+  -d '{"operation":"add","firstOperand":5,"secondOperand":3}'
+
+# Test convenience endpoint
+curl http://localhost:8080/calculator/multiply?a=4&b=5</code></pre>
+        </div>
+    </section>
+    
+    <section role="region" aria-label="Features">
+        <h2>Features</h2>
+        <ul>
+            <li>Spring AI integration with Ollama LLM</li>
+            <li>Model Composition Pattern (MCP) for arithmetic operations</li>
+            <li>AI-generated explanations for calculations</li>
+            <li>Comprehensive validation and error handling</li>
+            <li>Simple and intuitive REST API</li>
+        </ul>
+    </section>
+</main>
+    
+    <footer role="contentinfo" aria-label="Page footer">
+        <p>Built with Spring Boot, Spring AI, and Ollama</p>
+        <p>© 2024 Spring AI Calculator Demo</p>
+    </footer>
+</body>
+</html>

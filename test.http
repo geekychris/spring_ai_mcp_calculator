@@ -1,0 +1,23 @@
+
+
+
+
+# curl -X POST http://localhost:8080/calculator/calculate
+#  -H "Content-Type: application/json"
+#  -d '{"operation":"add","firstOperand":5,"secondOperand":3}'
+POST http://localhost:8080/calculator/calculate
+Content-Type: application/json
+
+{
+  "operation": "add",
+  "firstOperand": 5,
+  "secondOperand": 3
+}
+
+###
+
+# curl http://localhost:8080/calculator/multiply?a=4&b=5
+GET http://localhost:8080/calculator/add?a=4&b=5
+
+###
+

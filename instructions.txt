@@ -1,0 +1,1 @@
+Create a springboot app that uses springai and spring ai mcp.  This allows me to multiply divide add and subtract integers.  Use ollama 3.2 as the llm model.  Also use maven for builds.
