@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo.png" alt="Spring Ai MCP Calculator logo" width="180">
+</p>
+
 # Spring AI Calculator with MCP
 
 A Spring Boot application that uses Spring AI with Ollama to perform basic arithmetic operations (add, subtract, multiply, divide) and provide AI-generated explanations.
